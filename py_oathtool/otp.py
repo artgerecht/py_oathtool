@@ -26,7 +26,7 @@ def main():
     Hook your shell into 'otp -t' for tab completion
 
     Requires python packages
-     * subprocess32
+     * subprocess32, pyaml
 
     Requires oathtool on the command line
      * (mac) brew install oath-toolkit
@@ -48,16 +48,16 @@ def main():
         action='store_true')
     parser.add_argument('-t', '--tab-complete', help='list suitable for tab completion',
         action='store_true')
+    parser.add_argument('-a', '--add-entry', nargs='+', help='add or edit entry: otp <name> <otp>')
     parser.add_argument('-f', '--force', help='disable the <5 second holdoff feature',
         action='store_true')
     parser.add_argument('-s', '--secrets-file', help='secrets YAML file')
 
     args = parser.parse_args()
 
-    # Quit with error if -l or -t are missing and there is no label
-    if not args.tab_complete and not args.list_labels and args.label == None:
-        parser.error('You need to provide a label to look up when not using -l/-t')
-
+    # Quit with error if -l or -t or -a are missing and there is no label
+    if not args.tab_complete and not args.list_labels and not args.add_entry and args.label == None:
+        parser.error('You need to provide a label to look up when not using -l/-t/-a')
     if args.tab_complete and args.list_labels:
         parser.error('You cannot provide -l & -t together')
 
@@ -96,6 +96,21 @@ def main():
         elif (args.tab_complete):
             print(' '.join(str(x) for x in yamlLabels))
 
+        sys.exit()
+
+    # Add new label
+    if (args.add_entry):     
+        if not (len(args.add_entry) == 2):
+            parser.error('expected two arguments for new entry: <name> <otp>')
+        
+        newlabel = args.add_entry[0]
+        newtotp = args.add_entry[1]
+
+        otpSecrets['otpsecrets'][newlabel] = newtotp        
+    
+        with open(otpSecretsPath, 'w') as outfile:
+            outfile.write(yaml.dump(otpSecrets, default_flow_style=False))
+        
         sys.exit()
 
     # Check the label exists
