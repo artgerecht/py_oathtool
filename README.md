@@ -29,6 +29,10 @@ List the configured accounts with the **-l** switch.
     github
     aws-account-dev
     aws-account-prod
+ 
+ Add new entry to yaml file. If **git-dev** already exists, the OTP code will be replaced.
+   
+     $ otp -a git-dev xmdktr1aofh2n6tt
 
 Generate an OTP by providing the account name. The script will provide the OTP code, and also drop it to the clipboard.
 
